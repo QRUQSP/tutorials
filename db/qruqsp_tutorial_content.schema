@@ -1,0 +1,39 @@
+#
+# Description
+# -----------
+# This table stores the content blocks for the tutorial. These can be information, steps or substeps which is
+# determined when the content is added to a tutorial.
+#
+# Fields
+# ------
+# id:               The ID assigned to the tutorial.
+# uuid:             The Universal Unique ID.
+# tnid:             The tenant the tutorial is attached to.
+#
+# title:            The name for the step.
+# image1_id:        The ID of the first image for this step.
+# image2_id:        The ID of the second image for this step.
+# image3_id:        The ID of the third image for this step.
+# image4_id:        The ID of the fourth image for this step.
+# image5_id:        The ID of the fifth image for this step.
+# content:          The longer text description of the step (optional).
+#
+# date_added:       The UTC date and time the record was added.
+# last_updated:     The UTC date and time the record was last updated.
+#
+create table qruqsp_tutorial_content (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+    title varchar(150) not null,
+    image1_id int not null,
+    image2_id int not null,
+    image3_id int not null,
+    image4_id int not null,
+    image5_id int not null,
+    content varchar(20000) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

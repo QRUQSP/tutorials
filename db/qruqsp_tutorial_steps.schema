@@ -1,0 +1,43 @@
+#
+# Description
+# -----------
+# The steps of the tutorial are pulled from the content table. This allows each piece of content/step
+# to be reused in multiple tutorials. This allows a single change to instantly update many tutorials.
+#
+# The steps can also be displayed with no number, so they can be a Tools Required section, or Parts List.
+# Steps can also be sub-steps so will be displayed with NumberLetter.
+#
+#
+# Fields
+# ------
+# id:               The ID assigned to the tutorial.
+# uuid:             The Universal Unique ID.
+# tnid:             The tenant the tutorial is attached to.
+#
+# tutorial_id:      The ID of the tutorial.
+# content_id:       The ID of the step content.
+#
+# content_type:     The type determines how this content will be displayed.
+#
+#                       10 - Step, will be displayed as "Number. Title"
+#                       20 - Substep, will be displayed as "NumberLetter. Title"
+#                       50 - Unnumbered Section, used for general information.
+#                       
+# sequence:         The order of the step, but not the number that will be displayed. 
+#
+# date_added:       The UTC date and time the record was added.
+# last_updated:     The UTC date and time the record was last updated.
+#
+create table qruqsp_tutorial_steps (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+    tutorial_id int not null,
+    content_id int not null,
+    content_type tinyint unsigned not null,
+    sequence tinyint unsigned not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

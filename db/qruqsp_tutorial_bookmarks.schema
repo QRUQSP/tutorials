@@ -1,0 +1,26 @@
+#
+# Description
+# -----------
+# The bookmarks table stores the tutorials a tenant has bookmarked.
+#
+# Fields
+# ------
+# id:               The ID assigned to the tutorial.
+# uuid:             The Universal Unique ID.
+# tnid:             The tenant the tutorial is attached to.
+#
+# tutorial_id:      The ID of the tutorial that is bookmarked for this tenant.
+#
+# date_added:       The UTC date and time the record was added.
+# last_updated:     The UTC date and time the record was last updated.
+#
+create table qruqsp_tutorial_bookmarks (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+    tutorial_id int not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';
