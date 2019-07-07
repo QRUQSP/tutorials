@@ -77,6 +77,17 @@ function qruqsp_tutorials_objects(&$ciniki) {
             ),
         'history_table' => 'qruqsp_tutorials_history',
         );
+    $objects['bookmark'] = array(
+        'name' => 'Bookmark',
+        'sync' => 'yes',
+        'o_name' => 'bookmark',
+        'o_container' => 'bookmarks',
+        'table' => 'qruqsp_tutorial_bookmarks',
+        'fields' => array(
+            'tutorial_id' => array('name'=>'Tutorial', 'ref'=>'qruqsp.tutorials.tutorial'),
+            ),
+        'history_table' => 'qruqsp_tutorials_history',
+        );
     //
     return array('stat'=>'ok', 'objects'=>$objects);
 }

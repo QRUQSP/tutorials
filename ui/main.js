@@ -101,16 +101,20 @@ function qruqsp_tutorials_main() {
         if( s == 'tutorials' || s == 'bookmarked' ) {
             switch(j) {
                 case 0: return '<span class="maintext">' + d.title + '</span><span class="subtext">' + d.synopsis + '</span>';
-                case 2: return d.author;
-                case 3: return d.date_published;
-                case 4: return '1 2 3';
+                case 1: return d.author;
+                case 2: return d.date_published;
+                case 3: return '<span onclick="event.stopPropagation();M.qruqsp_tutorials_main.menu.downloadPDF(' + d.id + ',\'single\');" class="faicon">&#xf1c1;</span>'
+                    + '&nbsp;&nbsp;<span onclick="event.stopPropagation();M.qruqsp_tutorials_main.menu.downloadPDF(' + d.id + ',\'double\');" class="faicon">&#xf0db;</span>'
+                    + '&nbsp;&nbsp;<span onclick="event.stopPropagation();M.qruqsp_tutorials_main.menu.downloadPDF(' + d.id + ',\'triple\');" class="faicon">&#xf00b;</span>';
             }
         }
         if( s == 'contributortutorials' ) {
             switch(j) {
                 case 0: return '<span class="maintext">' + d.title + '</span><span class="subtext">' + d.synopsis + '</span>';
                 case 1: return d.date_published;
-                case 2: return '1 2 3';
+                case 2: return '<span onclick="event.stopPropagation();M.qruqsp_tutorials_main.menu.downloadPDF(' + d.id + ',\'single\');" class="faicon">&#xf1c1;</span>'
+                    + '&nbsp;&nbsp;<span onclick="event.stopPropagation();M.qruqsp_tutorials_main.menu.downloadPDF(' + d.id + ',\'double\');" class="faicon">&#xf0db;</span>'
+                    + '&nbsp;&nbsp;<span onclick="event.stopPropagation();M.qruqsp_tutorials_main.menu.downloadPDF(' + d.id + ',\'triple\');" class="faicon">&#xf00b;</span>';
             }
         }
         if( s == 'mytutorials' ) {
@@ -218,10 +222,10 @@ function qruqsp_tutorials_main() {
             },
         '_buttons':{'label':'', 'aside':'yes', 'buttons':{
             'unbookmark':{'label':'Remove Bookmark', 
-                'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 ? 'yes' : 'no'; },
+                'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.bookmarked == 'yes' ? 'yes' : 'no'; },
                 'fn':'M.qruqsp_tutorials_main.tutorial.bookmarkRemove();'},
             'bookmark':{'label':'Bookmark', 
-                'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 ? 'yes' : 'no'; },
+                'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.bookmarked != 'yes' ? 'yes' : 'no'; },
                 'fn':'M.qruqsp_tutorials_main.tutorial.bookmarkAdd();'},
             }},
         'step_image_id':{'label':'', 'type':'imageform', 'fields':{
@@ -270,6 +274,32 @@ function qruqsp_tutorials_main() {
             return 'highlight';
         }
         return '';
+    }
+    this.tutorial.bookmarkAdd = function() {
+        if( this.tutorial_id > 0 ) {
+            M.api.getJSONCb('qruqsp.tutorials.bookmarkAdd', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.qruqsp_tutorials_main.tutorial;
+                p.data.bookmarked = 'yes';
+                p.refreshSection('_buttons');
+            });
+        }
+    }
+    this.tutorial.bookmarkRemove = function() {
+        if( this.tutorial_id > 0 ) {
+            M.api.getJSONCb('qruqsp.tutorials.bookmarkDelete', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.qruqsp_tutorials_main.tutorial;
+                p.data.bookmarked = 'no';
+                p.refreshSection('_buttons');
+            });
+        }
     }
     this.tutorial.open = function(cb, tid, list) {
         if( tid != null ) { this.tutorial_id = tid; }
@@ -373,6 +403,12 @@ function qruqsp_tutorials_main() {
 //            }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.qruqsp_tutorials_main.edit.save();'},
+            'publish':{'label':'Publish', 
+                'visible':function() {return M.qruqsp_tutorials_main.edit.tutorial_id > 0 && (M.qruqsp_tutorials_main.edit.flags&0x01) == 0 ? 'yes' : 'no'; },
+                'fn':'M.qruqsp_tutorials_main.edit.publish();'},
+            'unpublish':{'label':'Unpublish', 
+                'visible':function() {return M.qruqsp_tutorials_main.edit.tutorial_id > 0 && (M.qruqsp_tutorials_main.edit.flags&0x01) == 0x01 ? 'yes' : 'no'; },
+                'fn':'M.qruqsp_tutorials_main.edit.unpublish();'},
             'delete':{'label':'Delete', 
                 'visible':function() {return M.qruqsp_tutorials_main.edit.tutorial_id > 0 ? 'yes' : 'no'; },
                 'fn':'M.qruqsp_tutorials_main.edit.remove();'},
@@ -390,6 +426,19 @@ function qruqsp_tutorials_main() {
     this.edit.rowFn = function(s, i, d) {
         if( s == 'steps' ) {
             return 'M.qruqsp_tutorials_main.edit.save("M.qruqsp_tutorials_main.step.open(\'M.qruqsp_tutorials_main.edit.open();\',' + d.id + ',M.qruqsp_tutorials_main.edit.tutorial_id,M.qruqsp_tutorials_main.edit.data.steps_ids);");';
+        }
+    }
+    this.edit.publish = function() {
+        if( this.tutorial_id > 0 && confirm("Are you sure you're ready to publish this in the library?") ) {
+            M.api.getJSONCb('qruqsp.tutorials.tutorialPublish', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.qruqsp_tutorials_main.tutorial;
+                p.data.published = 'yes';
+                p.refreshSection('_buttons');
+            });
         }
     }
     this.edit.open = function(cb, tid, list) {

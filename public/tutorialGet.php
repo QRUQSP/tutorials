@@ -63,6 +63,7 @@ function qruqsp_tutorials_tutorialGet($ciniki) {
             'flags'=>'0',
             'synopsis'=>'',
             'content'=>'',
+            'bookmarked'=>'no',
         );
     }
 
@@ -82,6 +83,23 @@ function qruqsp_tutorials_tutorialGet($ciniki) {
             return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.22', 'msg'=>'Unable to find Tutorial'));
         }
         $tutorial = $rc['tutorial'];
+        $tutorial['bookmarked'] = 'no';
+
+        //
+        // Check if tutorial is bookmarked
+        //
+        $strsql = "SELECT tutorial_id "
+            . "FROM qruqsp_tutorial_bookmarks "
+            . "WHERE tutorial_id = '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.tutorials', 'item');
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.31', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+        }
+        if( isset($rc['item']['tutorial_id']) ) {
+            $tutorial['bookmarked'] = 'yes';
+        }
     }
 
     $rsp = array('stat'=>'ok', 'tutorial'=>$tutorial);

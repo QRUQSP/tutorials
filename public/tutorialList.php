@@ -237,7 +237,9 @@ function qruqsp_tutorials_tutorialList($ciniki) {
             . "FROM qruqsp_tutorial_bookmarks AS bookmarks, qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
             . "WHERE bookmarks.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND bookmarks.tutorial_id = tutorials.id "
-            . "AND (tutorials.flags&0x01) = 0x01 "
+            . "AND ((tutorials.flags&0x01) = 0x01 " 
+                . "OR tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . ") "
             . "AND tutorials.tnid = tenants.id "
             . "ORDER BY tutorials.date_added DESC "
             . "";
