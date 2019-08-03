@@ -97,7 +97,7 @@ function qruqsp_tutorials_tutorialGet($ciniki) {
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.31', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
         }
-        if( isset($rc['item']['tutorial_id']) ) {
+        if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
             $tutorial['bookmarked'] = 'yes';
         }
     }

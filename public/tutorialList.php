@@ -320,7 +320,20 @@ function qruqsp_tutorials_tutorialList($ciniki) {
             //
             // Load the tutorial list if specified
             //
-            if( isset($args['category']) && $args['category'] != '' ) {
+            if( isset($args['category']) && $args['category'] == '_latest_' ) {
+                $strsql = "SELECT tutorials.id, "
+                    . "tutorials.tnid, "
+                    . "tutorials.title, "
+                    . "tutorials.permalink, "
+                    . "tutorials.synopsis, "
+                    . "tutorials.flags, "
+                    . "tutorials.date_added "
+                    . "FROM qruqsp_tutorials AS tutorials "
+                    . "WHERE tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                    . "ORDER BY tutorials.date_added DESC "
+                    . "LIMIT 25 "
+                    . "";
+            } elseif( isset($args['category']) && $args['category'] != '' ) {
                 $strsql = "SELECT tutorials.id, "
                     . "tutorials.tnid, "
                     . "tutorials.title, "

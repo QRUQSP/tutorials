@@ -22,5 +22,6 @@ create table qruqsp_tutorial_bookmarks (
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
+    unique index (tnid, tutorial_id),
     index sync (tnid, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

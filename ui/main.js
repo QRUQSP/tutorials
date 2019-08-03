@@ -7,12 +7,12 @@ function qruqsp_tutorials_main() {
     //
     this.menu = new M.panel('Tutorial Library', 'qruqsp_tutorials_main', 'menu', 'mc', 'large narrowaside', 'sectioned', 'qruqsp.tutorials.main.menu');
     this.menu.category = '';
-    this.menu.mycategory = '';
+    this.menu.mycategory = '_latest_';
     this.menu.contributor_tnid = 0;
     this.menu.data = {};
     this.menu.nplist = [];
     this.menu.sections = {
-        'tabs':{'label':'', 'type':'menutabs', 'selected':'mytutorials', 'tabs':{
+        'tabs':{'label':'', 'type':'menutabs', 'selected':'latest', 'tabs':{
             'latest':{'label':'Latest', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("latest");'},
             'categories':{'label':'Categories', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("categories");'},
             'contributors':{'label':'Contributors', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("contributors");'},
@@ -23,7 +23,7 @@ function qruqsp_tutorials_main() {
             'visible':function() { return M.qruqsp_tutorials_main.menu.sections.tabs.selected == 'categories' ? 'yes' : 'no'; },
             'noData':'No Categories',
             },
-        'mycategories':{'label':'Categories', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
+        'mycategories':{'label':'Website Categories', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
             'visible':function() { return M.qruqsp_tutorials_main.menu.sections.tabs.selected == 'mytutorials' && M.modFlagOn('qruqsp.tutorials', 0x10) ? 'yes' : 'no'; },
             'noData':'No Categories',
             },
@@ -381,11 +381,13 @@ function qruqsp_tutorials_main() {
     this.edit.sections = {
         'general':{'label':'', 'aside':'yes', 'fields':{
             'title':{'label':'Title', 'required':'yes', 'type':'text'},
-            'flags5':{'label':'Published on Website', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x10},
+            'flags5':{'label':'Published on Website', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x10,
+                'active':function() { return M.modOn('ciniki.web') ? 'yes' : 'no';}, 
+                },
 //            'date_published':{'label':'Date Published', 'type':'date'},
             }},
-        '_categories':{'label':'Categories', 'aside':'yes', 
-            'active':function() { return M.modFlagSet('qruqsp.tutorials', 0x10);}, 
+        '_categories':{'label':'Website Categories', 'aside':'yes', 
+            'active':function() { return M.modOn('ciniki.web') && M.modFlagOn('qruqsp.tutorials', 0x10) ? 'yes' : 'no';}, 
             'fields':{
                 'mycategories':{'label':'', 'hidelabel':'yes', 'type':'tags', 'tags':[], 'hint':'Enter a new category:'},
         }},
@@ -403,7 +405,7 @@ function qruqsp_tutorials_main() {
 //            }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.qruqsp_tutorials_main.edit.save();'},
-            'publish':{'label':'Publish', 
+            'publish':{'label':'Publish to Library', 
                 'visible':function() {return M.qruqsp_tutorials_main.edit.tutorial_id > 0 && (M.qruqsp_tutorials_main.edit.flags&0x01) == 0 ? 'yes' : 'no'; },
                 'fn':'M.qruqsp_tutorials_main.edit.publish();'},
             'unpublish':{'label':'Unpublish', 

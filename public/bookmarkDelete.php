@@ -62,7 +62,7 @@ function qruqsp_tutorials_bookmarkDelete(&$ciniki) {
     // Check if any modules are currently using this object
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectCheckUsed');
-    $rc = ciniki_core_objectCheckUsed($ciniki, $args['tnid'], 'qruqsp.tutorials.bookmark', $args['bookmark_id']);
+    $rc = ciniki_core_objectCheckUsed($ciniki, $args['tnid'], 'qruqsp.tutorials.bookmark', $bookmark['id']);
     if( $rc['stat'] != 'ok' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.42', 'msg'=>'Unable to check if the bookmark is still being used.', 'err'=>$rc['err']));
     }
