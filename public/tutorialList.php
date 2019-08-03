@@ -58,22 +58,68 @@ function qruqsp_tutorials_tutorialList($ciniki) {
     // Setup return array
     //
     $rsp = array('stat'=>'ok');
+    
+    //
+    // Setup library tnid if in config
+    //
+    $library_tnid = 0;
+    if( isset($ciniki['config']['qruqsp.tutorials']['library.tnid'])
+        && $ciniki['config']['qruqsp.tutorials']['library.tnid'] > 0
+        ) {
+        $library_tnid = $ciniki['config']['qruqsp.tutorials']['library.tnid'];
+    }
 
     //
     // Return the most recent additions to the library
     //
     if( $args['list'] == 'latest' ) {
-        $strsql = "SELECT tutorials.id, "
+        //
+        // Get the list of submitted uncategoried entries
+        //
+        if( isset($args['tnid']) == $library_tnid ) {
+            $strsql = "SELECT DISTINCT tutorials.id, "
+                . "tutorials.tnid, "
+                . "tutorials.title, "
+                . "tutorials.permalink, "
+                . "tutorials.synopsis, "
+                . "tenants.name AS author, "
+                . "library.date_added AS date_published "
+                . "FROM qruqsp_tutorial_library AS library, qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
+                . "WHERE library.tnid = '" . ciniki_core_dbQuote($ciniki, $library_tnid) . "' "
+                . "AND library.category = '' "
+                . "AND library.tutorial_id = tutorials.id "
+                . "AND tutorials.tnid = tenants.id "
+                . "GROUP BY library.tutorial_id "
+                . "ORDER BY date_published DESC "
+                . "LIMIT 25 "
+                . "";
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+            $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(
+                array('container'=>'tutorials', 'fname'=>'id', 
+                    'fields'=>array('id', 'tnid', 'title', 'permalink', 'synopsis', 'author', 'date_published'),
+                    'utctotz'=>array('date_published'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
+                    ),
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.15', 'msg'=>'Unable to load tutorials', 'err'=>$rc['err']));
+            }
+            $rsp['submitted'] = isset($rc['tutorials']) ? $rc['tutorials'] : array();
+        }
+
+        $strsql = "SELECT DISTINCT tutorials.id, "
             . "tutorials.tnid, "
             . "tutorials.title, "
             . "tutorials.permalink, "
             . "tutorials.synopsis, "
             . "tenants.name AS author, "
-            . "tutorials.date_published "
-            . "FROM qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
-            . "WHERE (tutorials.flags&0x01) = 0x01 "
+            . "MIN(library.date_added) AS date_published "
+            . "FROM qruqsp_tutorial_library AS library, qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
+            . "WHERE library.tnid = '" . ciniki_core_dbQuote($ciniki, $library_tnid) . "' "
+            . "AND library.category <> '' "
+            . "AND library.tutorial_id = tutorials.id "
             . "AND tutorials.tnid = tenants.id "
-            . "ORDER BY tutorials.date_published DESC "
+            . "GROUP BY library.tutorial_id "
+            . "ORDER BY date_published DESC "
             . "LIMIT 25 "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
@@ -101,21 +147,18 @@ function qruqsp_tutorials_tutorialList($ciniki) {
     // Get the list of categories for the library
     //
     elseif( $args['list'] == 'categories' ) {
-        $strsql = "SELECT tags.permalink, "
-            . "tags.tag_name, "
-            . "COUNT(tutorials.id) AS num_tutorials "
-            . "FROM qruqsp_tutorial_tags AS tags "
-            . "INNER JOIN qruqsp_tutorials AS tutorials ON ("
-                . "tags.tutorial_id = tutorials.id "
-                . "AND (tutorials.flags&0x01) = 0x01 "
-                . ") "
-            . "WHERE tags.tag_type = 10 "
-            . "GROUP BY permalink "
-            . "ORDER BY permalink "
+        $strsql = "SELECT category, subcategory, COUNT(tutorial_id) AS num_tutorials "
+            . "FROM qruqsp_tutorial_library "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $library_tnid) . "' "
+            . "AND category <> '' "
+            . "GROUP BY category, subcategory "
+            . "ORDER BY category, subcategory "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(
-            array('container'=>'categories', 'fname'=>'permalink', 'fields'=>array('permalink', 'category'=>'tag_name', 'num_tutorials')),
+            array('container'=>'categories', 'fname'=>'category', 'fields'=>array('category', 'num_tutorials'), 
+                'sums'=>array('num_tutorials')),
+            array('container'=>'subcategories', 'fname'=>'subcategory', 'fields'=>array('subcategory', 'num_tutorials')),
             ));
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.12', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
@@ -132,14 +175,13 @@ function qruqsp_tutorials_tutorialList($ciniki) {
                 . "tutorials.permalink, "
                 . "tutorials.synopsis, "
                 . "tenants.name AS author, "
-                . "tutorials.date_published "
-                . "FROM qruqsp_tutorial_tags AS tags, qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
-                . "WHERE tags.tag_type = 10 "
-                . "AND tags.permalink = '" . ciniki_core_dbQuote($ciniki, $args['category']) . "' "
-                . "AND tags.tutorial_id = tutorials.id "
-                . "AND (tutorials.flags&0x01) = 0x01 "
+                . "library.date_added AS date_published "
+                . "FROM qruqsp_tutorial_library AS library, qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
+                . "WHERE library.tnid = '" . ciniki_core_dbQuote($ciniki, $library_tnid) . "' "
+                . "AND library.category <> '' "
+                . "AND library.tutorial_id = tutorials.id "
                 . "AND tutorials.tnid = tenants.id "
-                . "ORDER BY tutorials.date_published DESC "
+                . "ORDER BY library.date_added DESC "
                 . "";
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
             $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(
@@ -171,8 +213,9 @@ function qruqsp_tutorials_tutorialList($ciniki) {
         $strsql = "SELECT tenants.id, "
             . "tenants.name, "
             . "COUNT(tutorials.id) AS num_tutorials "
-            . "FROM qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
-            . "WHERE (tutorials.flags&0x01) = 0x01 "
+            . "FROM qruqsp_tutorial_library AS library, qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
+            . "WHERE library.tnid = '" . ciniki_core_dbQuote($ciniki, $library_tnid) . "' "
+            . "AND library.category <> '' "
             . "AND tutorials.tnid = tenants.id "
             . "GROUP BY tenants.id "
             . "ORDER BY tenants.name "
@@ -195,11 +238,13 @@ function qruqsp_tutorials_tutorialList($ciniki) {
                 . "tutorials.title, "
                 . "tutorials.permalink, "
                 . "tutorials.synopsis, "
-                . "tutorials.date_published "
-                . "FROM qruqsp_tutorials AS tutorials "
-                . "WHERE tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['contributor_tnid']) . "' "
-                . "AND (tutorials.flags&0x01) = 0x01 "
-                . "ORDER BY tutorials.date_published DESC "
+                . "MIN(library.date_added) AS date_published "
+                . "FROM qruqsp_tutorial_library AS library, qruqsp_tutorials AS tutorials "
+                . "WHERE library.tnid = '" . ciniki_core_dbQuote($ciniki, $library_tnid) . "' "
+                . "AND library.tutorial_id = tutorials.id "
+                . "AND tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['contributor_tnid']) . "' "
+                . "GROUP BY tutorials.id "
+                . "ORDER BY date_published DESC "
                 . "";
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
             $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(
@@ -233,13 +278,12 @@ function qruqsp_tutorials_tutorialList($ciniki) {
             . "tutorials.permalink, "
             . "tutorials.synopsis, "
             . "tenants.name AS author, "
-            . "tutorials.date_added "
-            . "FROM qruqsp_tutorial_bookmarks AS bookmarks, qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
+            . "bookmarks.date_added "
+            . "FROM qruqsp_tutorial_bookmarks AS bookmarks, qruqsp_tutorial_library AS library, qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
             . "WHERE bookmarks.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "AND bookmarks.tutorial_id = library.tutorial_id "
+            . "AND library.category <> '' "
             . "AND bookmarks.tutorial_id = tutorials.id "
-            . "AND ((tutorials.flags&0x01) = 0x01 " 
-                . "OR tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-                . ") "
             . "AND tutorials.tnid = tenants.id "
             . "ORDER BY tutorials.date_added DESC "
             . "";

@@ -36,6 +36,18 @@ function qruqsp_tutorials_main() {
             'hint':'Search tutorial',
             'noData':'No tutorial found',
             },
+        'submitted':{'label':'Submissions', 'type':'simplegrid', 'num_cols':4,
+            'visible':function() { return M.qruqsp_tutorials_main.menu.sections.tabs.selected == 'latest' && M.qruqsp_tutorials_main.menu.data.submitted != null && M.qruqsp_tutorials_main.menu.data.submitted.length > 0 ? 'yes' : 'no'; },
+            'headerValues':['Title', 'Author', 'Date Submitted'],
+            'cellClasses':['multiline', '', ''],
+            'noData':'No submissions',
+            'editFn':function(s, i, d) { 
+                if( (M.userPerms&0x01) == 0x01 ) {
+                    return 'M.qruqsp_tutorials_main.edit.open(\'M.qruqsp_tutorials_main.menu.open();\',' + d.id + ',null);' 
+                }
+                return '';
+                },
+            },
         'tutorials':{'label':'Tutorials', 'type':'simplegrid', 'num_cols':4,
             'visible':function() { return M.qruqsp_tutorials_main.menu.sections.tabs.selected == 'latest' || (M.qruqsp_tutorials_main.menu.sections.tabs.selected == 'categories' && M.qruqsp_tutorials_main.menu.category != '') ? 'yes' : 'no'; },
             'headerValues':['Title', 'Author', 'Date Published', 'PDF'],
@@ -98,7 +110,7 @@ function qruqsp_tutorials_main() {
         if( s == 'contributors' ) {    
             return d.name + ' <span class="count">' + d.num_tutorials + '</span>';
         }
-        if( s == 'tutorials' || s == 'bookmarked' ) {
+        if( s == 'submitted' || s == 'tutorials' || s == 'bookmarked' ) {
             switch(j) {
                 case 0: return '<span class="maintext">' + d.title + '</span><span class="subtext">' + d.synopsis + '</span>';
                 case 1: return d.author;
@@ -149,7 +161,7 @@ function qruqsp_tutorials_main() {
         if( s == 'contributors' ) {
             return 'M.qruqsp_tutorials_main.menu.selectContributor("' + d.id + '");';
         }
-        if( s == 'tutorials' || s == 'bookmarked' || s == 'contributortutorials' || s == 'mytutorials' ) {
+        if( s == 'submitted' || s == 'tutorials' || s == 'bookmarked' || s == 'contributortutorials' || s == 'mytutorials' ) {
             return 'M.qruqsp_tutorials_main.tutorial.open(\'M.qruqsp_tutorials_main.menu.open();\',\'' + d.id + '\');';
         }
     }
@@ -225,7 +237,7 @@ function qruqsp_tutorials_main() {
                 'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.bookmarked == 'yes' ? 'yes' : 'no'; },
                 'fn':'M.qruqsp_tutorials_main.tutorial.bookmarkRemove();'},
             'bookmark':{'label':'Bookmark', 
-                'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.bookmarked != 'yes' ? 'yes' : 'no'; },
+                'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.library != null && M.qruqsp_tutorials_main.tutorial.data.library == 'yes' && M.qruqsp_tutorials_main.tutorial.data.bookmarked != 'yes' ? 'yes' : 'no'; },
                 'fn':'M.qruqsp_tutorials_main.tutorial.bookmarkAdd();'},
             }},
         'step_image_id':{'label':'', 'type':'imageform', 'fields':{
@@ -394,6 +406,12 @@ function qruqsp_tutorials_main() {
         '_synopsis':{'label':'Synopsis', 'aside':'yes', 'fields':{
             'synopsis':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
             }},
+        'librarycategories':{'label':'Library Categories', 'type':'simplegrid', 'aside':'yes', 'num_cols':2,
+            'visible':function() { return M.qruqsp_tutorials_main.edit.data.library != null && M.qruqsp_tutorials_main.edit.data.library == 'yes' ? 'yes' : 'no'; },
+            'noData':'No Categories',
+            'addTxt':'Add to Library Category',
+            'addFn':'',
+            },
         'steps':{'label':'', 'type':'simplegrid', 'num_cols':1,
             'cellClasses':['multiline'],
             'noData':'No steps added',
@@ -405,11 +423,11 @@ function qruqsp_tutorials_main() {
 //            }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.qruqsp_tutorials_main.edit.save();'},
-            'publish':{'label':'Publish to Library', 
-                'visible':function() {return M.qruqsp_tutorials_main.edit.tutorial_id > 0 && (M.qruqsp_tutorials_main.edit.flags&0x01) == 0 ? 'yes' : 'no'; },
+            'publish':{'label':'Submit to Library', 
+                'visible':function() {return M.qruqsp_tutorials_main.edit.tutorial_id > 0 && M.qruqsp_tutorials_main.edit.data.library == null ? 'yes' : 'no'; },
                 'fn':'M.qruqsp_tutorials_main.edit.publish();'},
-            'unpublish':{'label':'Unpublish', 
-                'visible':function() {return M.qruqsp_tutorials_main.edit.tutorial_id > 0 && (M.qruqsp_tutorials_main.edit.flags&0x01) == 0x01 ? 'yes' : 'no'; },
+            'unpublish':{'label':'Remove from Library', 
+                'visible':function() {return M.qruqsp_tutorials_main.edit.tutorial_id > 0 && M.qruqsp_tutorials_main.edit.data.library == 'yes' ? 'yes' : 'no'; },
                 'fn':'M.qruqsp_tutorials_main.edit.unpublish();'},
             'delete':{'label':'Delete', 
                 'visible':function() {return M.qruqsp_tutorials_main.edit.tutorial_id > 0 ? 'yes' : 'no'; },
@@ -421,6 +439,18 @@ function qruqsp_tutorials_main() {
         return {'method':'qruqsp.tutorials.tutorialHistory', 'args':{'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id, 'field':i}};
     }
     this.edit.cellValue = function(s, i, j, d) {
+        if( s == 'librarycategories' ) {
+            if( d.category == '' ) {
+                switch(j) {
+                    case 0: return 'Request submitted';
+                    case 1: return '';
+                }
+            }
+            switch(j) {
+                case 0: return d.category;
+                case 1: return d.subcategory;
+            }
+        }
         if( s == 'steps' ) {
             return d.full_title;
         }
@@ -429,17 +459,20 @@ function qruqsp_tutorials_main() {
         if( s == 'steps' ) {
             return 'M.qruqsp_tutorials_main.edit.save("M.qruqsp_tutorials_main.step.open(\'M.qruqsp_tutorials_main.edit.open();\',' + d.id + ',M.qruqsp_tutorials_main.edit.tutorial_id,M.qruqsp_tutorials_main.edit.data.steps_ids);");';
         }
+        if( s == 'librarycategories' && (M.userPerms&0x01) == 0x01 ) {
+            return 'M.qruqsp_tutorials_main.edit.save("M.qruqsp_tutorials_main.library.open(\'M.qruqsp_tutorials_main.edit.open();\',' + d.id + ',M.qruqsp_tutorials_main.edit.tutorial_id);");';
+        }
     }
     this.edit.publish = function() {
-        if( this.tutorial_id > 0 && confirm("Are you sure you're ready to publish this in the library?") ) {
-            M.api.getJSONCb('qruqsp.tutorials.tutorialPublish', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id}, function(rsp) {
+        if( this.tutorial_id > 0 && confirm("Are you sure you're ready to submit this tutorial to the library?") ) {
+            M.api.getJSONCb('qruqsp.tutorials.libraryAdd', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id, 'category':'', 'subscategory':''}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
-                var p = M.qruqsp_tutorials_main.tutorial;
-                p.data.published = 'yes';
-                p.refreshSection('_buttons');
+                var p = M.qruqsp_tutorials_main.edit;
+                alert("Thank you for submitted your tutorial, it has been sent for review.");
+                M.qruqsp_tutorials_main.edit.open();
             });
         }
     }
@@ -632,6 +665,100 @@ function qruqsp_tutorials_main() {
     this.step.addButton('next', 'Next');
     this.step.addLeftButton('prev', 'Prev');
 
+    //
+    // The panel to edit library entries
+    //
+    this.library = new M.panel('Library Category', 'qruqsp_tutorials_main', 'library', 'mc', 'medium', 'sectioned', 'qruqsp.tutorials.main.library');
+    this.library.data = null;
+    this.library.library_id = 0;
+    this.library.tutorial_id = 0;
+    this.library.nplist = [];
+    this.library.sections = {
+        'entry':{'label':'', 'aside':'yes', 'fields':{
+            'category':{'label':'Category', 'type':'text'},
+            'subcategory':{'label':'Sub Category', 'type':'text'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.qruqsp_tutorials_main.library.save();'},
+            'delete':{'label':'Delete', 
+                'visible':function() {return M.qruqsp_tutorials_main.library.library_id > 0 ? 'yes' : 'no'; },
+                'fn':'M.qruqsp_tutorials_main.library.remove();'},
+            }},
+        };
+    this.library.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.library.fieldHistoryArgs = function(s, i) {
+        return {'method':'qruqsp.tutorials.libraryHistory', 'args':{'tnid':M.curTenantID, 'library_id':this.library_id, 'field':i}};
+    }
+    this.library.open = function(cb, lid, tid, list) {
+        if( lid != null ) { this.library_id = lid; }
+        if( tid != null ) { this.tutorial_id = tid; }
+        if( list != null ) { this.nplist = list; }
+        M.api.getJSONCb('qruqsp.tutorials.libraryGet', {'tnid':M.curTenantID, 'library_id':this.library_id, 'tutorial_id':this.tutorial_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.qruqsp_tutorials_main.library;
+            p.data = rsp.library;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.library.save = function(cb) {
+        if( cb == null ) { cb = 'M.qruqsp_tutorials_main.library.close();'; }
+        if( !this.checkForm() ) { return false; }
+        if( this.library_id > 0 ) {
+            var c = this.serializeForm('no');
+            if( c != '' ) {
+                M.api.postJSONCb('qruqsp.tutorials.libraryUpdate', {'tnid':M.curTenantID, 'library_id':this.library_id}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    eval(cb);
+                });
+            } else {
+                eval(cb);
+            }
+        } else {
+            var c = this.serializeForm('yes');
+            M.api.postJSONCb('qruqsp.tutorials.libraryAdd', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.qruqsp_tutorials_main.library.library_id = rsp.id;
+                eval(cb);
+            });
+        }
+    }
+    this.library.remove = function() {
+        if( confirm('Are you sure you want to remove tutorial category?') ) {
+            M.api.getJSONCb('qruqsp.tutorials.libraryDelete', {'tnid':M.curTenantID, 'library_id':this.library_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.qruqsp_tutorials_main.library.close();
+            });
+        }
+    }
+    this.library.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.library_id) < (this.nplist.length - 1) ) {
+            return 'M.qruqsp_tutorials_main.library.save(\'M.qruqsp_tutorials_main.library.open(null,' + this.nplist[this.nplist.indexOf('' + this.library_id) + 1] + ');\');';
+        }
+        return null;
+    }
+    this.library.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.library_id) > 0 ) {
+            return 'M.qruqsp_tutorials_main.library.save(\'M.qruqsp_tutorials_main.library.open(null,' + this.nplist[this.nplist.indexOf('' + this.library_id) - 1] + ');\');';
+        }
+        return null;
+    }
+    this.library.addButton('save', 'Save', 'M.qruqsp_tutorials_main.library.save();');
+    this.library.addClose('Cancel');
+    this.library.addButton('next', 'Next');
+    this.library.addLeftButton('prev', 'Prev');
 
     //
     // Start the app
@@ -653,7 +780,11 @@ function qruqsp_tutorials_main() {
             alert('App Error');
             return false;
         }
-        
+        if( (M.userPerms&0x01) == 0x01 ) {
+            this.edit.sections.librarycategories.addFn = 'M.qruqsp_tutorials_main.edit.save("M.qruqsp_tutorials_main.library.open(\'M.qruqsp_tutorials_main.edit.open();\',0,M.qruqsp_tutorials_main.edit.tutorial_id);");';
+        } else {
+            this.edit.sections.librarycategories.addFn = '';
+        }
         this.menu.open(cb);
     }
 }

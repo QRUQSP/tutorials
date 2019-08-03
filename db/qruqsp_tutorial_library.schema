@@ -1,0 +1,32 @@
+#
+# Description
+# -----------
+# This table stores the tutorials that have been published in the shared library.
+# The owner of the shared library is defined in the config:
+# [qruqsp.tutorials]
+#     library.tnid = 1
+#
+# Fields
+# ------
+# id:               The ID assigned to the tutorial.
+# uuid:             The Universal Unique ID.
+# tnid:             The tenant the tutorial is attached to.
+#
+# tutorial_id:      The ID of the tutorial that is bookmarked for this tenant.
+#
+# date_added:       The UTC date and time the record was added.
+# last_updated:     The UTC date and time the record was last updated.
+#
+create table qruqsp_tutorial_library (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+    tutorial_id int not null,
+    category varchar(250) not null,
+    subcategory varchar(250) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (tnid, tutorial_id, category, subcategory),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

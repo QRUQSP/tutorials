@@ -88,6 +88,19 @@ function qruqsp_tutorials_objects(&$ciniki) {
             ),
         'history_table' => 'qruqsp_tutorials_history',
         );
+    $objects['library'] = array(
+        'name' => 'Library',
+        'sync' => 'yes',
+        'o_name' => 'library',
+        'o_container' => 'librarys',
+        'table' => 'qruqsp_tutorial_library',
+        'fields' => array(
+            'tutorial_id' => array('name'=>'Tutorial', 'ref'=>'qruqsp.tutorials.tutorial'),
+            'category' => array('name'=>'Category', 'default'=>''),
+            'subcategory' => array('name'=>'Sub Category', 'default'=>''),
+            ),
+        'history_table' => 'qruqsp_tutorials_history',
+        );
     //
     return array('stat'=>'ok', 'objects'=>$objects);
 }

@@ -100,6 +100,28 @@ function qruqsp_tutorials_tutorialGet($ciniki) {
         if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
             $tutorial['bookmarked'] = 'yes';
         }
+
+        //
+        // Check if shared library is enabled and if tutorial is in library
+        //
+        if( isset($ciniki['config']['qruqsp.tutorials']['library.tnid']) 
+            && $ciniki['config']['qruqsp.tutorials']['library.tnid'] > 0
+            ) {
+            $strsql = "SELECT id, category, subcategory "
+                . "FROM qruqsp_tutorial_library "
+                . "WHERE tutorial_id = '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $ciniki['config']['ciniki.core']['qruqsp_tnid']) . "' "
+                . "ORDER BY category, subcategory "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.tutorials', 'item');
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.31', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+            }
+            if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
+                $tutorial['library'] = 'yes';
+                $tutorial['librarycategories'] = $rc['rows'];
+            } 
+        }
     }
 
     $rsp = array('stat'=>'ok', 'tutorial'=>$tutorial);
