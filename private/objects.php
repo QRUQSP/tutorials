@@ -28,7 +28,6 @@ function qruqsp_tutorials_objects(&$ciniki) {
             'flags' => array('name'=>'Options', 'default'=>'0'),
             'synopsis' => array('name'=>'Synopsis', 'default'=>''),
             'content' => array('name'=>'Content', 'default'=>''),
-            'date_published' => array('name'=>'Date Published', 'default'=>''),
             ),
         'history_table' => 'qruqsp_tutorials_history',
         );

@@ -16,7 +16,7 @@ function qruqsp_tutorials_flags(&$ciniki) {
     //
     $flags = array(
         // 0x01
-        array('flag'=>array('bit'=>'1', 'name'=>'Library Publish')), // Are they allowed to publish to shared library
+//        array('flag'=>array('bit'=>'1', 'name'=>'')),
 //        array('flag'=>array('bit'=>'2', 'name'=>'')),
 //        array('flag'=>array('bit'=>'3', 'name'=>'')),
 //        array('flag'=>array('bit'=>'4', 'name'=>'')),

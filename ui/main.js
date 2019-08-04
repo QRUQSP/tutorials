@@ -416,7 +416,7 @@ function qruqsp_tutorials_main() {
             'cellClasses':['multiline'],
             'noData':'No steps added',
             'addTxt':'Add Step',
-            'addFn':'M.qruqsp_tutorials_main.edit.save("M.qruqsp_tutorials_main.step.open(\'M.qruqsp_tutorials_main.edit.open();\',0,M.qruqsp_tutorials_main.edit.tutorial_id,null);");',
+            'addFn':'M.qruqsp_tutorials_main.edit.save("M.qruqsp_tutorials_main.addstep.open(\'M.qruqsp_tutorials_main.edit.open();\',0,M.qruqsp_tutorials_main.edit.tutorial_id,null);");',
             },
 //        '_content':{'label':'Content', 'fields':{
 //            'content':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large'},
@@ -553,6 +553,121 @@ function qruqsp_tutorials_main() {
     this.edit.addLeftButton('prev', 'Prev');
 
     //
+    // The panel to add a Step
+    //
+    this.addstep = new M.panel('Add Step', 'qruqsp_tutorials_main', 'addstep', 'mc', 'medium mediumaside', 'sectioned', 'qruqsp.tutorials.main.addstep');
+    this.addstep.data = null;
+    this.addstep.tutorial_id = 0;
+    this.addstep.step_id = 0;
+    this.addstep.nplist = [];
+    this.addstep.sections = {
+        '_tabs':{'label':'', 'type':'menutabs', 'selected':'new', 'tabs':{
+            'new':{'label':'New Step', 'fn':'M.qruqsp_tutorials_main.addstep.switchTab("new");'},
+            'existing':{'label':'Choose Existing', 'fn':'M.qruqsp_tutorials_main.addstep.switchTab("existing");'},
+            }},
+        '_image1_id':{'label':'Image', 'type':'imageform', 'aside':'yes', 
+            'visible':function() { return M.qruqsp_tutorials_main.addstep.sections._tabs.selected == 'new' ? 'yes' : 'no'; },
+            'fields':{
+                'image1_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'controls':'all', 'history':'no',
+                    'addDropImage':function(iid) {
+                        M.qruqsp_tutorials_main.addstep.setFieldValue('image1_id', iid);
+                        return true;
+                        },
+                    'addDropImageRefresh':'',
+                 },
+            }},
+        'general':{'label':'', 'aside':'yes', 
+            'visible':function() { return M.qruqsp_tutorials_main.addstep.sections._tabs.selected == 'new' ? 'yes' : 'no'; },
+            'fields':{
+                'title':{'label':'Title', 'type':'text'},
+                'content_type':{'label':'Type', 'type':'toggle', 'toggles':{'10':'Step', '50':'Unnumbered'}},
+                'sequence':{'label':'Order', 'type':'text', 'size':'small'},
+            }},
+        '_content':{'label':'Content', 
+            'visible':function() { return M.qruqsp_tutorials_main.addstep.sections._tabs.selected == 'new' ? 'yes' : 'no'; },
+            'fields':{
+                'content':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large'},
+            }},
+        '_chooser':{'label':'Choose Existing Step', 
+            'visible':function() { return M.qruqsp_tutorials_main.addstep.sections._tabs.selected == 'existing' ? 'yes' : 'no';},
+            'fields':{
+                'content_id':{'label':'', 'hidelabel':'yes', 'type':'select', 'options':[], 'complex_options':{'value':'id', 'name':'title'}},
+            }},
+        '_order':{'label':'', 'aside':'yes', 
+            'visible':function() { return M.qruqsp_tutorials_main.addstep.sections._tabs.selected == 'existing' ? 'yes' : 'no'; },
+            'fields':{
+                'content_type':{'label':'Type', 'type':'toggle', 'toggles':{'10':'Step', '50':'Unnumbered'}},
+                'sequence':{'label':'Order', 'type':'text', 'size':'small'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.qruqsp_tutorials_main.addstep.save();'},
+            'delete':{'label':'Delete', 
+                'visible':function() {return M.qruqsp_tutorials_main.addstep.step_id > 0 ? 'yes' : 'no'; },
+                'fn':'M.qruqsp_tutorials_main.addstep.remove();'},
+            }},
+        };
+    this.addstep.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.addstep.switchTab = function(t) {
+        this.sections._tabs.selected = t;
+        if( this.sections._tabs.selected == 'new' ) {
+            this.size = 'medium mediumaside';
+        } else {
+            this.size = 'medium';
+        }
+        this.refresh();
+        this.show();
+    }
+    this.addstep.open = function(cb, sid, tid, list) {
+        if( sid != null ) { this.step_id = sid; }
+        if( tid != null ) { this.tutorial_id = tid; }
+        if( list != null ) { this.nplist = list; }
+        if( this.sections._tabs.selected == 'new' ) {
+            this.size = 'medium mediumaside';
+        } else {
+            this.size = 'medium';
+        }
+        var content_id = this.formValue('content_id');
+        M.api.getJSONCb('qruqsp.tutorials.stepGet', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id, 'step_id':0, 'content':'yes'}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.qruqsp_tutorials_main.addstep;
+            p.data = rsp.step;
+            if( content_id != null ) {
+                p.data.content_id = content_id;
+            }
+            p.sections._chooser.fields.content_id.options = {};
+            if( rsp.contentlist != null ) {
+                p.sections._chooser.fields.content_id.options = rsp.contentlist;
+            }
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.addstep.save = function(cb) {
+        if( cb == null ) { cb = 'M.qruqsp_tutorials_main.addstep.close();'; }
+        if( !this.checkForm() ) { return false; }
+        if( this.sections._tabs.selected == 'existing' ) {
+            var c = this.serializeFormSection('yes', '_chooser')
+                + this.serializeFormSection('yes', '_order');
+        } else {
+            var c = this.serializeFormSection('yes', '_image1_id')
+                + this.serializeFormSection('yes', 'general');
+                + this.serializeFormSection('yes', '_content');
+        }
+        M.api.postJSONCb('qruqsp.tutorials.stepAdd', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id}, c, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            M.qruqsp_tutorials_main.addstep.close();
+        });
+    }
+    this.addstep.addButton('save', 'Save', 'M.qruqsp_tutorials_main.addstep.ave();');
+    this.addstep.addClose('Cancel');
+
+    //
     // The panel to edit Step
     //
     this.step = new M.panel('Step', 'qruqsp_tutorials_main', 'step', 'mc', 'medium mediumaside', 'sectioned', 'qruqsp.tutorials.main.step');
@@ -579,7 +694,7 @@ function qruqsp_tutorials_main() {
         '_content':{'label':'Content', 'fields':{
             'content':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large'},
             }},
-        'tutorials':{'label':'Tutorials', 'type':'simplegrid', 'aside':'yes', 'num_cols':1,
+        'tutorials':{'label':'This step also used in', 'type':'simplegrid', 'aside':'yes', 'num_cols':1,
             'visible':function() { return M.qruqsp_tutorials_main.step.data.tutorials != null ? 'yes' : 'no';},
             'noData':'Not currently used in other tutorials',
             },
@@ -593,6 +708,13 @@ function qruqsp_tutorials_main() {
     this.step.fieldValue = function(s, i, d) { return this.data[i]; }
     this.step.fieldHistoryArgs = function(s, i) {
         return {'method':'qruqsp.tutorials.stepHistory', 'args':{'tnid':M.curTenantID, 'step_id':this.step_id, 'field':i}};
+    }
+    this.step.cellValue = function(s, i, j, d) {
+        if( s == 'tutorials' ) {
+            switch(j) {
+                case 0: return d.title;
+            }
+        }
     }
     this.step.open = function(cb, sid, tid, list) {
         if( sid != null ) { this.step_id = sid; }

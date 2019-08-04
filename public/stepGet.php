@@ -23,6 +23,7 @@ function qruqsp_tutorials_stepGet($ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'step_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Step'),
         'tutorial_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Tutorial'),
+        'content'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Return Content List'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -154,6 +155,37 @@ function qruqsp_tutorials_stepGet($ciniki) {
         }
     }
 
-    return array('stat'=>'ok', 'step'=>$step);
+    $rsp = array('stat'=>'ok', 'step'=>$step);
+
+    //
+    // Check if content list should be returned
+    //
+    if( isset($args['content']) && $args['content'] == 'yes' ) {
+        $strsql = "SELECT content.id, "
+            . "CONCAT_WS('-', tutorials.title, content.title) AS title "
+            . "FROM qruqsp_tutorial_content AS content "
+            . "LEFT JOIN qruqsp_tutorial_steps AS steps ON ("
+                . "content.id = steps.content_id "
+                . "AND steps.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . ") "
+            . "LEFT JOIN qruqsp_tutorials AS tutorials ON ("
+                . "steps.tutorial_id = tutorials.id "
+                . "AND tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . ") "
+            . "WHERE content.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "GROUP By content.id "
+            . "ORDER BY steps.sequence, content.title "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(
+            array('container'=>'content', 'fname'=>'id', 'fields'=>array('id', 'title')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.34', 'msg'=>'Unable to load content list', 'err'=>$rc['err']));
+        }
+        $rsp['contentlist'] = isset($rc['content']) ? $rc['content'] : array();
+    }
+
+    return $rsp;
 }
 ?>
