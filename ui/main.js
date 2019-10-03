@@ -653,7 +653,7 @@ function qruqsp_tutorials_main() {
                 + this.serializeFormSection('yes', '_order');
         } else {
             var c = this.serializeFormSection('yes', '_image1_id')
-                + this.serializeFormSection('yes', 'general');
+                + this.serializeFormSection('yes', 'general')
                 + this.serializeFormSection('yes', '_content');
         }
         M.api.postJSONCb('qruqsp.tutorials.stepAdd', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id}, c, function(rsp) {

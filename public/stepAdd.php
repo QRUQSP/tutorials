@@ -87,7 +87,7 @@ function qruqsp_tutorials_stepAdd(&$ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'sequencesUpdate');
     $rc = ciniki_core_sequencesUpdate($ciniki, $args['tnid'], 'qruqsp.tutorials.step', 
-        'tutorial_id', $step['tutorial_id'], $args['sequence'], -1);
+        'tutorial_id', $args['tutorial_id'], $args['sequence'], -1);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.tutorials');
         return $rc;
