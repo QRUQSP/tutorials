@@ -168,7 +168,7 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
                 $this->SetLineWidth(0.25);
                 $this->SetDrawColor(50);
                 $img = $this->Image('@'.$image->getImageBlob(), '', '', $this->left_col_width, $img_box_height, 
-                    'JPEG', '', '', false, 300, '', false, false, 
+                    'JPEG', '', '', true, 300, '', false, false, 
                     array('LTRB'=>array('color'=>array(128,128,128))), 'CT');
                 $this->Ln();
                 $this->Ln(5);
@@ -241,7 +241,7 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
                 $image = $rc['image'];
                 $pdf->SetLineWidth(0.25);
                 $pdf->SetDrawColor(50);
-                $img = $pdf->Image('@'.$image, '', '', $img_box_width, $img_box_height, 'JPEG', '', '', false, 300, '', false, false, 0, 'CT');
+                $img = $pdf->Image('@'.$image, '', '', $img_box_width, $img_box_height, 'JPEG', '', '', true, 300, '', false, false, 0, 'CT');
             }
             $pdf->SetY(-50);
         } else {
