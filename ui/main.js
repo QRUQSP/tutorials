@@ -13,10 +13,10 @@ function qruqsp_tutorials_main() {
     this.menu.nplist = [];
     this.menu.sections = {
         'tabs':{'label':'', 'type':'menutabs', 'selected':'latest', 'tabs':{
-            'latest':{'label':'Latest', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("latest");'},
-            'categories':{'label':'Categories', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("categories");'},
-            'contributors':{'label':'Contributors', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("contributors");'},
-            'bookmarked':{'label':'Bookmarked', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("bookmarked");'},
+            'latest':{'label':'Library', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("latest");'},
+//            'categories':{'label':'Categories', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("categories");'},
+//            'contributors':{'label':'Contributors', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("contributors");'},
+//            'bookmarked':{'label':'Bookmarked', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("bookmarked");'},
             'mytutorials':{'label':'My Tutorials', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("mytutorials");'},
             }},
         'categories':{'label':'Categories', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
