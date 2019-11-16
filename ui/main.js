@@ -31,10 +31,12 @@ function qruqsp_tutorials_main() {
             'visible':function() { return M.qruqsp_tutorials_main.menu.sections.tabs.selected == 'contributors' ? 'yes' : 'no'; },
             'noData':'No Contributors',
             },
-        'search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':1,
+        'search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':2,
             'cellClasses':[''],
             'hint':'Search tutorial',
             'noData':'No tutorial found',
+            'headerValues':['Title', 'PDF'],
+            'cellClasses':['multiline', '', '', ''],
             },
         'submitted':{'label':'Submissions', 'type':'simplegrid', 'num_cols':4,
             'visible':function() { return M.qruqsp_tutorials_main.menu.sections.tabs.selected == 'latest' && M.qruqsp_tutorials_main.menu.data.submitted != null && M.qruqsp_tutorials_main.menu.data.submitted.length > 0 ? 'yes' : 'no'; },
@@ -89,7 +91,12 @@ function qruqsp_tutorials_main() {
         }
     }
     this.menu.liveSearchResultValue = function(s, f, i, j, d) {
-        return d.name;
+        switch(j) {
+            case 0: return '<span class="maintext">' + d.title + '</span><span class="subtext">' + d.synopsis + '</span>';
+            case 1: return '<span onclick="event.stopPropagation();M.qruqsp_tutorials_main.menu.downloadPDF(' + d.id + ',\'single\');" class="faicon">&#xf1c1;</span>'
+                + '&nbsp;&nbsp;<span onclick="event.stopPropagation();M.qruqsp_tutorials_main.menu.downloadPDF(' + d.id + ',\'double\');" class="faicon">&#xf0db;</span>'
+                + '&nbsp;&nbsp;<span onclick="event.stopPropagation();M.qruqsp_tutorials_main.menu.downloadPDF(' + d.id + ',\'triple\');" class="faicon">&#xf00b;</span>';
+        }
     }
     this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
         return 'M.qruqsp_tutorials_main.tutorial.open(\'M.qruqsp_tutorials_main.menu.open();\',\'' + d.id + '\');';
@@ -110,7 +117,7 @@ function qruqsp_tutorials_main() {
         if( s == 'contributors' ) {    
             return d.name + ' <span class="count">' + d.num_tutorials + '</span>';
         }
-        if( s == 'submitted' || s == 'tutorials' || s == 'bookmarked' ) {
+        if( s == 'search' || s == 'submitted' || s == 'tutorials' || s == 'bookmarked' ) {
             switch(j) {
                 case 0: return '<span class="maintext">' + d.title + '</span><span class="subtext">' + d.synopsis + '</span>';
                 case 1: return d.author;

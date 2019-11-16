@@ -45,12 +45,15 @@ function qruqsp_tutorials_tutorialSearch($ciniki) {
     $strsql = "SELECT qruqsp_tutorials.id, "
         . "qruqsp_tutorials.title, "
         . "qruqsp_tutorials.permalink, "
+        . "qruqsp_tutorials.synopsis, "
         . "qruqsp_tutorials.flags "
         . "FROM qruqsp_tutorials "
         . "WHERE qruqsp_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ("
-            . "name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
-            . "OR name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+            . "title LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+            . "OR title LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+            . "OR synopsis LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+            . "OR synopsis LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
         . ") "
         . "";
     if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
@@ -61,7 +64,7 @@ function qruqsp_tutorials_tutorialSearch($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(
         array('container'=>'tutorials', 'fname'=>'id', 
-            'fields'=>array('id', 'title', 'permalink', 'flags')),
+            'fields'=>array('id', 'title', 'permalink', 'flags', 'synopsis')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

@@ -143,6 +143,7 @@ function qruqsp_tutorials_tutorialList($ciniki) {
             $rsp['tutorial_ids'] = array();
         }
     }
+
     //
     // Get the list of categories for the library
     //
@@ -219,8 +220,8 @@ function qruqsp_tutorials_tutorialList($ciniki) {
                 $rsp['tutorial_ids'] = array();
             }
         }
-        
     }
+
     //
     // Return the list of contributors (tenants) to the library
     //
