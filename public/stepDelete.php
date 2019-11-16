@@ -41,7 +41,7 @@ function qruqsp_tutorials_stepDelete(&$ciniki) {
     // Get the current settings for the step
     //
     $strsql = "SELECT id, content_id, uuid "
-        . "FROM qruqsp_tutorials_steps "
+        . "FROM qruqsp_tutorial_steps "
         . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['step_id']) . "' "
         . "";
@@ -57,7 +57,7 @@ function qruqsp_tutorials_stepDelete(&$ciniki) {
     //
     // Check if the content is used in any other steps
     //
-    $strsql = "SELECT COUNT(tutorials.id) AS num "
+    $strsql = "SELECT COUNT(steps.tutorial_id) AS num "
         . "FROM qruqsp_tutorial_steps AS steps "
         . "WHERE steps.content_id = '" . ciniki_core_dbQuote($ciniki, $step['content_id']) . "' "
         . "AND steps.id <> '" . ciniki_core_dbQuote($ciniki, $args['step_id']) . "' "
