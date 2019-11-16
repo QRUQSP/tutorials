@@ -14,6 +14,11 @@
 #
 # tutorial_id:      The ID of the tutorial that is bookmarked for this tenant.
 #
+# category:         The main category for the tutorial in the library.
+# subcategory:      The sub category for the library.
+#
+# sequence:         The sequence within the category/subcategory.
+#
 # date_added:       The UTC date and time the record was added.
 # last_updated:     The UTC date and time the record was last updated.
 #
@@ -24,6 +29,7 @@ create table qruqsp_tutorial_library (
     tutorial_id int not null,
     category varchar(250) not null,
     subcategory varchar(250) not null,
+    sequence tinyint unsigned not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),

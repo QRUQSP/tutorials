@@ -12,9 +12,9 @@ function qruqsp_tutorials_main() {
     this.menu.data = {};
     this.menu.nplist = [];
     this.menu.sections = {
-        'tabs':{'label':'', 'type':'menutabs', 'selected':'latest', 'tabs':{
-            'latest':{'label':'Library', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("latest");'},
-//            'categories':{'label':'Categories', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("categories");'},
+        'tabs':{'label':'', 'type':'menutabs', 'selected':'categories', 'tabs':{
+//            'latest':{'label':'Library', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("latest");'},
+            'categories':{'label':'Library', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("categories");'},
 //            'contributors':{'label':'Contributors', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("contributors");'},
 //            'bookmarked':{'label':'Bookmarked', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("bookmarked");'},
             'mytutorials':{'label':'My Tutorials', 'fn':'M.qruqsp_tutorials_main.menu.switchTab("mytutorials");'},
@@ -799,6 +799,7 @@ function qruqsp_tutorials_main() {
         'entry':{'label':'', 'aside':'yes', 'fields':{
             'category':{'label':'Category', 'type':'text'},
             'subcategory':{'label':'Sub Category', 'type':'text'},
+            'sequence':{'label':'Order', 'type':'text', 'size':'small'},
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.qruqsp_tutorials_main.library.save();'},

@@ -1,0 +1,6 @@
+#
+# Add the sequence field for sorting tutorials
+#
+ALTER TABLE qruqsp_tutorial_library ADD COLUMN sequence smallint unsigned not null AFTER subcategory;
+ALTER TABLE qruqsp_tutorial_library COMMENT='v1.02';
+

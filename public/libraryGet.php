@@ -61,6 +61,7 @@ function qruqsp_tutorials_libraryGet($ciniki) {
             'tutorial_id'=>'',
             'category'=>'',
             'subcategory'=>'',
+            'sequence'=>'',
         );
     }
 
@@ -71,7 +72,8 @@ function qruqsp_tutorials_libraryGet($ciniki) {
         $strsql = "SELECT qruqsp_tutorial_library.id, "
             . "qruqsp_tutorial_library.tutorial_id, "
             . "qruqsp_tutorial_library.category, "
-            . "qruqsp_tutorial_library.subcategory "
+            . "qruqsp_tutorial_library.subcategory, "
+            . "qruqsp_tutorial_library.sequence "
             . "FROM qruqsp_tutorial_library "
             . "WHERE qruqsp_tutorial_library.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND qruqsp_tutorial_library.id = '" . ciniki_core_dbQuote($ciniki, $args['library_id']) . "' "
@@ -79,7 +81,7 @@ function qruqsp_tutorials_libraryGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(
             array('container'=>'librarys', 'fname'=>'id', 
-                'fields'=>array('tutorial_id', 'category', 'subcategory'),
+                'fields'=>array('tutorial_id', 'category', 'subcategory', 'sequence'),
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {

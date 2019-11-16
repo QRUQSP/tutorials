@@ -20,6 +20,7 @@ function qruqsp_tutorials_libraryList($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
+        'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -41,14 +42,19 @@ function qruqsp_tutorials_libraryList($ciniki) {
     $strsql = "SELECT qruqsp_tutorial_library.id, "
         . "qruqsp_tutorial_library.tutorial_id, "
         . "qruqsp_tutorial_library.category, "
-        . "qruqsp_tutorial_library.subcategory "
+        . "qruqsp_tutorial_library.subcategory, "
+        . "qruqsp_tutorial_library.sequence "
         . "FROM qruqsp_tutorial_library "
-        . "WHERE qruqsp_tutorial_library.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "WHERE qruqsp_tutorial_library.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' ";
+    if( isset($args['category']) && $args['category'] != '' ) {
+        $strsql .= "AND qruqsp_tutorial_library.category = '" . ciniki_core_dbQuote($ciniki, $args['category']) . "' ";
+    }
+    $strsql .= "ORDER BY qruqsp_tutorial_library.sequence "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(
         array('container'=>'librarys', 'fname'=>'id', 
-            'fields'=>array('id', 'tutorial_id', 'category', 'subcategory')),
+            'fields'=>array('id', 'tutorial_id', 'category', 'subcategory', 'sequence')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -58,6 +64,7 @@ function qruqsp_tutorials_libraryList($ciniki) {
         $library_ids = array();
         foreach($librarys as $iid => $library) {
             $library_ids[] = $library['id'];
+            $librarys[$iid]['permalink'] = ciniki_core_makePermalink($ciniki, $library['category']);
         }
     } else {
         $librarys = array();

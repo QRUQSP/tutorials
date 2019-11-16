@@ -166,6 +166,20 @@ function qruqsp_tutorials_tutorialList($ciniki) {
         $rsp['categories'] = isset($rc['categories']) ? $rc['categories'] : array();
 
         //
+        // Update the list to put getting started first
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'makePermalink');
+        foreach($rsp['categories'] as $cid => $category) {  
+            if( $category['category'] == 'Getting Started' ) {
+                $category['permalink'] = urlencode($category['category']);
+                unset($rsp['categories'][$cid]);
+                array_unshift($rsp['categories'], $category);
+            } else {
+                $rsp['categories'][$cid]['permalink'] = urlencode($category['category']);
+            }
+        }
+
+        //
         // Load the tutorial list if specified
         //
         if( isset($args['category']) && $args['category'] != '' ) {
@@ -179,9 +193,10 @@ function qruqsp_tutorials_tutorialList($ciniki) {
                 . "FROM qruqsp_tutorial_library AS library, qruqsp_tutorials AS tutorials, ciniki_tenants AS tenants "
                 . "WHERE library.tnid = '" . ciniki_core_dbQuote($ciniki, $library_tnid) . "' "
                 . "AND library.category <> '' "
+                . "AND library.category = '" . ciniki_core_dbQuote($ciniki, urldecode($args['category'])) . "' "
                 . "AND library.tutorial_id = tutorials.id "
                 . "AND tutorials.tnid = tenants.id "
-                . "ORDER BY library.date_added DESC "
+                . "ORDER BY library.sequence, library.date_added DESC "
                 . "";
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
             $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(

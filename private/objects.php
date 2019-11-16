@@ -97,6 +97,7 @@ function qruqsp_tutorials_objects(&$ciniki) {
             'tutorial_id' => array('name'=>'Tutorial', 'ref'=>'qruqsp.tutorials.tutorial'),
             'category' => array('name'=>'Category', 'default'=>''),
             'subcategory' => array('name'=>'Sub Category', 'default'=>''),
+            'sequence' => array('name'=>'Order', 'default'=>'1'),
             ),
         'history_table' => 'qruqsp_tutorials_history',
         );

@@ -23,6 +23,7 @@ function qruqsp_tutorials_libraryAdd(&$ciniki) {
         'tutorial_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tutorial'),
         'category'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Category'),
         'subcategory'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Sub Category'),
+        'sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Order'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
