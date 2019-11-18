@@ -302,7 +302,7 @@ function qruqsp_tutorials_templates_single($ciniki, $tnid, $categories, $args) {
             // 
             // Add introduction to tutorial
             //
-            $pdf->AddMyPage($ciniki, $tnid, ($tutorial_num==1?$category['name']:''), $tutorial['title'], array(
+            $pdf->AddMyPage($ciniki, $tutorial['tnid'], ($tutorial_num==1?$category['name']:''), $tutorial['title'], array(
                 'image_id' => 0, 
                 'subtitle' => '', 
                 'content' => $tutorial['synopsis'],
@@ -335,7 +335,7 @@ function qruqsp_tutorials_templates_single($ciniki, $tnid, $categories, $args) {
                     //
                     // Add the step
                     //
-                    $pdf->AddMySection($ciniki, $tnid, NULL, $tutorial['title'], array(
+                    $pdf->AddMySection($ciniki, $tutorial['tnid'], NULL, $tutorial['title'], array(
                         'image_id' => $step['image1_id'], 
                         'subtitle' => $full_title, 
                         'content' => $step['content'],

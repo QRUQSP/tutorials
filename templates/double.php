@@ -328,7 +328,7 @@ function qruqsp_tutorials_templates_double($ciniki, $tnid, $categories, $args) {
                 // Add introduction to tutorial
                 //
                 if( $tutorial['synopsis'] != '' ) {
-                    $pdf->AddMySection($ciniki, $tnid, 
+                    $pdf->AddMySection($ciniki, $tutorial['tnid'], 
                         ($tutorial_num==1?$category['name']:NULL), 
                         $tutorial['title'], 
                         array(
@@ -364,7 +364,7 @@ function qruqsp_tutorials_templates_double($ciniki, $tnid, $categories, $args) {
                         $full_title = $step['title'];
                     }
 
-                    $pdf->AddMySection($ciniki, $tnid, 
+                    $pdf->AddMySection($ciniki, $tutorial['tnid'], 
                         (($tutorial_num==1&&$step_num<2)?$category['name']:($step_num<2?'':NULL)), 
                         $tutorial['title'], 
                         array(

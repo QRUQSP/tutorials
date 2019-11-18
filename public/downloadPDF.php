@@ -123,6 +123,7 @@ function qruqsp_tutorials_downloadPDF($ciniki) {
     // Load the list of tutorials, and their steps
     //
     $strsql = "SELECT tutorials.id, "
+        . "tutorials.tnid, "
         . "tutorials.title AS tutorial_title, "
         . "tutorials.synopsis AS tutorial_synopsis, "
         . "steps.id AS step_id, "
@@ -152,7 +153,7 @@ function qruqsp_tutorials_downloadPDF($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'qruqsp.tutorials', array(
         array('container'=>'tutorials', 'fname'=>'id',
-            'fields'=>array('id', 'title'=>'tutorial_title', 'synopsis'=>'tutorial_synopsis')),
+            'fields'=>array('id', 'tnid', 'title'=>'tutorial_title', 'synopsis'=>'tutorial_synopsis')),
         array('container'=>'steps', 'fname'=>'step_id',
             'fields'=>array('id'=>'step_id', 'content_type', 'sequence', 'title'=>'step_title', 
                 'image1_id', 'image2_id', 'image3_id', 'image4_id', 'image5_id', 'content')),

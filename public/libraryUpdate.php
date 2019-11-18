@@ -38,6 +38,44 @@ function qruqsp_tutorials_libraryUpdate(&$ciniki) {
     }
 
     //
+    // Load the library item
+    //
+    $strsql = "SELECT id, uuid, tnid, tutorial_id "
+        . "FROM qruqsp_tutorial_library "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['library_id']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'library');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( !isset($rc['library']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.44', 'msg'=>'Library does not exist.'));
+    }
+    $library = $rc['library'];
+
+    //
+    // Load the tutorial details, and number of other listings
+    //
+    $strsql = "SELECT tutorials.id, tutorials.flags, COUNT(library.id) AS num_listings "
+        . "FROM qruqsp_tutorials AS tutorials "
+        . "LEFT JOIN qruqsp_tutorial_library AS library ON ( "
+            . "tutorials.id = library.tutorial_id "
+            . "AND library.id <> '" . ciniki_core_dbQuote($ciniki, $library['tutorial_id']) . "' "
+            . ") "
+        . "WHERE tutorials.id = '" . ciniki_core_dbQuote($ciniki, $library['tutorial_id']) . "' "
+        . "AND tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $library['tnid']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.tutorials', 'item');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.49', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+    }
+    if( !isset($rc['item']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.tutorials.50', 'msg'=>'Unable to find requested item'));
+    }
+    $item = $rc['item'];
+    
+    //
     // Start transaction
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
@@ -57,6 +95,35 @@ function qruqsp_tutorials_libraryUpdate(&$ciniki) {
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.tutorials');
         return $rc;
+    }
+
+    //
+    // Check if flags should be updated
+    //
+    if( isset($args['category']) ) {
+        if( $args['category'] == '' && ($item['flags']&0x01) == 0x01 && $item['num_listings'] == 0 ) {
+            //
+            // Remove the publish flag
+            //
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'qruqsp.tutorials.tutorial', $item['id'], array(
+                'flags' => ($item['flags'] & 0xFFFE),
+                ), 0x04);
+            if( $rc['stat'] != 'ok' ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.tutorials');
+                return $rc;
+            }
+        } elseif( $args['category'] != '' && ($item['flags']&0x01) == 0 ) {
+            //
+            // Add the publish flag
+            //
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'qruqsp.tutorials.tutorial', $item['id'], array(
+                'flags' => ($item['flags'] | 0x01),
+                ), 0x04);
+            if( $rc['stat'] != 'ok' ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.tutorials');
+                return $rc;
+            }
+        }
     }
 
     //

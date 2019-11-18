@@ -34,19 +34,22 @@ function qruqsp_tutorials_tutorialLoad($ciniki, $tnid, $tutorial_id) {
     // Load the tutorial
     //
     $strsql = "SELECT tutorials.id, "
+        . "tutorials.tnid, "
         . "tutorials.title, "
         . "tutorials.permalink, "
         . "tutorials.flags, "
         . "tutorials.synopsis, "
         . "tutorials.content "
         . "FROM qruqsp_tutorials AS tutorials "
-        . "WHERE tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "WHERE (tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "OR (tutorials.flags&0x01) = 0x01 "
+            . ") "
         . "AND tutorials.id = '" . ciniki_core_dbQuote($ciniki, $tutorial_id) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.tutorials', array(
         array('container'=>'tutorials', 'fname'=>'id', 
-            'fields'=>array('title', 'permalink', 'flags', 'synopsis', 'content'),
+            'fields'=>array('tnid', 'title', 'permalink', 'flags', 'synopsis', 'content'),
             ),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -73,10 +76,10 @@ function qruqsp_tutorials_tutorialLoad($ciniki, $tnid, $tutorial_id) {
         . "FROM qruqsp_tutorial_steps AS steps "
         . "INNER JOIN qruqsp_tutorial_content AS content ON ("
             . "steps.content_id = content.id "
-            . "AND content.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND content.tnid = '" . ciniki_core_dbQuote($ciniki, $tutorial['tnid']) . "' "
             . ") "
         . "WHERE steps.tutorial_id = '" . ciniki_core_dbQuote($ciniki, $tutorial_id) . "' "
-        . "AND steps.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND steps.tnid = '" . ciniki_core_dbQuote($ciniki, $tutorial['tnid']) . "' "
         . "ORDER BY steps.sequence "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
@@ -132,7 +135,7 @@ function qruqsp_tutorials_tutorialLoad($ciniki, $tnid, $tutorial_id) {
     $strsql = "SELECT tag_type, tag_name AS lists "
         . "FROM qruqsp_tutorial_tags "
         . "WHERE tutorial_id = '" . ciniki_core_dbQuote($ciniki, $tutorial_id) . "' "
-        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tutorial['tnid']) . "' "
         . "ORDER BY tag_type, tag_name "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');

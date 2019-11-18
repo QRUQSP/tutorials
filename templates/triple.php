@@ -294,7 +294,7 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
             // 
             // Add introduction to tutorial
             //
-            $pdf->AddMySection($ciniki, $tnid, 
+            $pdf->AddMySection($ciniki, $tutorial['tnid'], 
                 array('image_id'=>0, 'subtitle'=>'', 'content'=>$tutorial['synopsis']));
             // Add a table of contents bookmarks
             if( isset($args['toc']) && $args['toc'] == 'yes' ) {
@@ -337,7 +337,7 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
                         $full_title = $step['title'];
                     }
                     $step['number'] = $step_num;
-                    $pdf->AddMySection($ciniki, $tnid, 
+                    $pdf->AddMySection($ciniki, $tutorial['tnid'], 
                         array('image_id'=>$step['image1_id'], 'subtitle'=>$full_title, 'content'=>$step['content']));
                     $page_num++;
                 }
