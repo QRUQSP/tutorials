@@ -247,11 +247,15 @@ function qruqsp_tutorials_main() {
                 'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.library != null && M.qruqsp_tutorials_main.tutorial.data.library == 'yes' && M.qruqsp_tutorials_main.tutorial.data.bookmarked != 'yes' ? 'yes' : 'no'; },
                 'fn':'M.qruqsp_tutorials_main.tutorial.bookmarkAdd();'},
             }},
+//        'step_image_id':{'label':'', 'type':'html'},
         'step_image_id':{'label':'', 'type':'imageform', 'fields':{
             'image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'size':'large', 'controls':'no', 'history':'no'},
             }},
         'step_content':{'label':'', 'type':'html'},
         };
+    this.tutorial.imageURL = function(s, i, d, img_id) {
+        return M.api.getBinaryURL('qruqsp.tutorials.imageGet', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id, 'image_id':img_id, 'version':'original'});
+    }
     this.tutorial.fieldValue = function(s, i, d) { 
         if( s == 'step_image_id' && i == 'image_id' ) {
             if( this.data.steps[this.seq_num] != null && this.data.steps[this.seq_num].image1_id != null ) {
