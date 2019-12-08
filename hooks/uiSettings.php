@@ -32,7 +32,7 @@ function qruqsp_tutorials_hooks_uiSettings(&$ciniki, $tnid, $args) {
         $menu_item = array(
             'priority'=>500,
             'label'=>'Tutorial Library',
-            'helpcontent' => 'Browse tutorials for a variety of topics',
+            'helpcontent' => 'Browse tutorials on a variety of topics',
             'edit'=>array('app'=>'qruqsp.tutorials.main'),
             );
         $rsp['menu_items'][] = $menu_item;

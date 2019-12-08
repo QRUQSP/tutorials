@@ -222,6 +222,18 @@ function qruqsp_tutorials_main() {
         });
     }
     this.menu.addClose('Back');
+    this.menu.helpSections = function() {
+        return {
+            '_1':{'label':'Library', 'type':'htmlcontent', 
+                'html':'The public library of published tutorials.'
+                    + '',
+                },
+            '_2':{'label':'My Tutorials', 'type':'htmlcontent', 
+                'html':'Build your own tutorials and share them with other members.'
+                    + '',
+                },
+            };
+    }
 
     //
     // The panel to view a Tutorial
@@ -239,14 +251,14 @@ function qruqsp_tutorials_main() {
         'steps':{'label':'', 'type':'simplegrid', 'num_cols':1, 'aside':'yes',
             'noData':'No steps',
             },
-        '_buttons':{'label':'', 'aside':'yes', 'buttons':{
-            'unbookmark':{'label':'Remove Bookmark', 
-                'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.bookmarked == 'yes' ? 'yes' : 'no'; },
-                'fn':'M.qruqsp_tutorials_main.tutorial.bookmarkRemove();'},
-            'bookmark':{'label':'Bookmark', 
-                'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.library != null && M.qruqsp_tutorials_main.tutorial.data.library == 'yes' && M.qruqsp_tutorials_main.tutorial.data.bookmarked != 'yes' ? 'yes' : 'no'; },
-                'fn':'M.qruqsp_tutorials_main.tutorial.bookmarkAdd();'},
-            }},
+//        '_buttons':{'label':'', 'aside':'yes', 'buttons':{
+//            'unbookmark':{'label':'Remove Bookmark', 
+//                'visible':function() {return 'no'; return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.bookmarked == 'yes' ? 'yes' : 'no'; },
+//                'fn':'M.qruqsp_tutorials_main.tutorial.bookmarkRemove();'},
+//            'bookmark':{'label':'Bookmark', 
+//                'visible':function() {return M.qruqsp_tutorials_main.tutorial.tutorial_id > 0 && M.qruqsp_tutorials_main.tutorial.data.library != null && M.qruqsp_tutorials_main.tutorial.data.library == 'yes' && M.qruqsp_tutorials_main.tutorial.data.bookmarked != 'yes' ? 'yes' : 'no'; },
+//                'fn':'M.qruqsp_tutorials_main.tutorial.bookmarkAdd();'},
+//            }},
 //        'step_image_id':{'label':'', 'type':'html'},
         'step_image_id':{'label':'', 'type':'imageform', 'fields':{
             'image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'size':'large', 'controls':'no', 'history':'no'},
@@ -307,7 +319,7 @@ function qruqsp_tutorials_main() {
                 }
                 var p = M.qruqsp_tutorials_main.tutorial;
                 p.data.bookmarked = 'yes';
-                p.refreshSection('_buttons');
+//                p.refreshSection('_buttons');
             });
         }
     }
