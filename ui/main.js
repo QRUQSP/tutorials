@@ -281,19 +281,21 @@ function qruqsp_tutorials_main() {
     }
     this.tutorial.rowFn = function(s, i, d) {
         if( s == 'steps' ) {
-            return 'M.qruqsp_tutorials_main.tutorial.openStep(' + (d.sequence-1) + ');';
+            return 'M.qruqsp_tutorials_main.tutorial.openStep(' + d.id + ');';
         }
     }
     this.tutorial.openStep = function(s) {
-        if( this.data.steps[s] != null ) {
-            this.seq_num = s;
-            this.sections.step_content.label = this.data.steps[s].full_title;
-            this.refreshSections(['steps', 'step_image_id', 'step_content']);
+        for(var i in this.data.steps) {
+            if( this.data.steps[i].id == s ) {
+                this.seq_num = i;
+                this.sections.step_content.label = this.data.steps[i].full_title;
+                this.refreshSections(['steps', 'step_image_id', 'step_content']);
+            }
         }
         this.seq_num = 0;
     }
     this.tutorial.rowClass = function(s, i, d) {
-        if( s == 'steps' && (d.sequence-1) == this.seq_num ) {
+        if( s == 'steps' && d.id == this.data.steps[this.seq_num].id ) {
             return 'highlight';
         }
         return '';
