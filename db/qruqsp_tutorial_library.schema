@@ -35,4 +35,4 @@ create table qruqsp_tutorial_library (
     primary key (id),
     unique index (tnid, tutorial_id, category, subcategory),
     index sync (tnid, uuid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';
