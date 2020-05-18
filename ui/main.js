@@ -382,15 +382,15 @@ function qruqsp_tutorials_main() {
         }
     }
     this.tutorial.remove = function() {
-        if( confirm('Are you sure you want to remove tutorial?') ) {
-            M.api.getJSONCb('qruqsp.tutorials.tutorialDelete', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove tutorial?',null,function() {
+            M.api.getJSONCb('qruqsp.tutorials.tutorialDelete', {'tnid':M.curTenantID, 'tutorial_id':M.qruqsp_tutorials_main.tutorial.tutorial_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.qruqsp_tutorials_main.tutorial.close();
             });
-        }
+        });
     }
     this.tutorial.nextButtonFn = function() {
         if( this.nplist != null && this.nplist.indexOf('' + this.tutorial_id) < (this.nplist.length - 1) ) {
@@ -489,17 +489,19 @@ function qruqsp_tutorials_main() {
         }
     }
     this.edit.publish = function() {
-        if( this.tutorial_id > 0 && confirm("Are you sure you're ready to submit this tutorial to the library?") ) {
-            M.api.getJSONCb('qruqsp.tutorials.libraryAdd', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id, 'category':'', 'subscategory':''}, function(rsp) {
-                if( rsp.stat != 'ok' ) {
-                    M.api.err(rsp);
-                    return false;
-                }
-                var p = M.qruqsp_tutorials_main.edit;
-                M.alert("Thank you for submitted your tutorial, it has been sent for review.");
-                M.qruqsp_tutorials_main.edit.open();
+        if( this.tutorial_id > 0 ) {
+            M.confirm("Are you sure you're ready to submit this tutorial to the library?",null,function() {
+                M.api.getJSONCb('qruqsp.tutorials.libraryAdd', {'tnid':M.curTenantID, 'tutorial_id':M.qruqsp_tutorials_main.edit.tutorial_id, 'category':'', 'subscategory':''}, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    var p = M.qruqsp_tutorials_main.edit;
+                    M.alert("Thank you for submitted your tutorial, it has been sent for review.");
+                    M.qruqsp_tutorials_main.edit.open();
+                });
             });
-        }
+        );
     }
     this.edit.open = function(cb, tid, list) {
         if( tid != null ) { this.tutorial_id = tid; }
@@ -550,15 +552,15 @@ function qruqsp_tutorials_main() {
         }
     }
     this.edit.remove = function() {
-        if( confirm('Are you sure you want to remove tutorial?') ) {
-            M.api.getJSONCb('qruqsp.tutorials.tutorialDelete', {'tnid':M.curTenantID, 'tutorial_id':this.tutorial_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove tutorial?',null,function() {
+            M.api.getJSONCb('qruqsp.tutorials.tutorialDelete', {'tnid':M.curTenantID, 'tutorial_id':M.qruqsp_tutorials_main.edit.tutorial_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.qruqsp_tutorials_main.edit.close();
             });
-        }
+        });
     }
     this.edit.nextButtonFn = function() {
         if( this.nplist != null && this.nplist.indexOf('' + this.tutorial_id) < (this.nplist.length - 1) ) {
@@ -785,15 +787,15 @@ function qruqsp_tutorials_main() {
         }
     }
     this.step.remove = function() {
-        if( confirm('Are you sure you want to remove step?') ) {
-            M.api.getJSONCb('qruqsp.tutorials.stepDelete', {'tnid':M.curTenantID, 'step_id':this.step_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove step?',null,function() {
+            M.api.getJSONCb('qruqsp.tutorials.stepDelete', {'tnid':M.curTenantID, 'step_id':M.qruqsp_tutorials_main.step.step_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.qruqsp_tutorials_main.step.close();
             });
-        }
+        });
     }
     this.step.nextButtonFn = function() {
         if( this.nplist != null && this.nplist.indexOf('' + this.step_id) < (this.nplist.length - 1) ) {
@@ -881,15 +883,15 @@ function qruqsp_tutorials_main() {
         }
     }
     this.library.remove = function() {
-        if( confirm('Are you sure you want to remove tutorial category?') ) {
-            M.api.getJSONCb('qruqsp.tutorials.libraryDelete', {'tnid':M.curTenantID, 'library_id':this.library_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove tutorial category?',null,function() {
+            M.api.getJSONCb('qruqsp.tutorials.libraryDelete', {'tnid':M.curTenantID, 'library_id':M.qruqsp_tutorials_main.library.library_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.qruqsp_tutorials_main.library.close();
             });
-        }
+        });
     }
     this.library.nextButtonFn = function() {
         if( this.nplist != null && this.nplist.indexOf('' + this.library_id) < (this.nplist.length - 1) ) {
