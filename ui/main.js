@@ -501,7 +501,7 @@ function qruqsp_tutorials_main() {
                     M.qruqsp_tutorials_main.edit.open();
                 });
             });
-        );
+        }
     }
     this.edit.open = function(cb, tid, list) {
         if( tid != null ) { this.tutorial_id = tid; }
