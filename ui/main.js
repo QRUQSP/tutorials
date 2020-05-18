@@ -496,7 +496,7 @@ function qruqsp_tutorials_main() {
                     return false;
                 }
                 var p = M.qruqsp_tutorials_main.edit;
-                alert("Thank you for submitted your tutorial, it has been sent for review.");
+                M.alert("Thank you for submitted your tutorial, it has been sent for review.");
                 M.qruqsp_tutorials_main.edit.open();
             });
         }
@@ -925,7 +925,7 @@ function qruqsp_tutorials_main() {
         //
         var ac = M.createContainer(ap, 'qruqsp_tutorials_main', 'yes');
         if( ac == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         }
         if( (M.userPerms&0x01) == 0x01 ) {
