@@ -691,7 +691,7 @@ function qruqsp_tutorials_main() {
             M.qruqsp_tutorials_main.addstep.close();
         });
     }
-    this.addstep.addButton('save', 'Save', 'M.qruqsp_tutorials_main.addstep.ave();');
+    this.addstep.addButton('save', 'Save', 'M.qruqsp_tutorials_main.addstep.save();');
     this.addstep.addClose('Cancel');
 
     //
