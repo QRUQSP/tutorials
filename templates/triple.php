@@ -122,19 +122,56 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
     
             $content_height = 0;
             if( $section['content'] != '' ) {
-                $section['content'] = preg_replace("/\n/", "<br/>", $section['content']);
+//                $section['content'] = preg_replace("/\n/", "<br/>", $section['content']);
                 $this->SetFont('', '', '12');
                 if( $image == null ) {
                     $content_height = $this->getStringHeight($this->left_col_width + $this->right_col_width, $section['content']);
                 } else {
                     $content_height = $this->getStringHeight($this->right_col_width, $section['content']);
                 }
-                if( $content_height > ($this->getPageHeight() - $this->GetY() - $title_height - $this->footer_height - 10) ) {
+                if( $content_height > ($this->getPageHeight() - $title_height - $this->footer_height) ) {
+                    $lines = explode("\n", $section['content']);
+                    $content = '';
+                    $num_pages = 0;
+                    foreach($lines as $line) {
+                        $new_content = $content . $line . "\n";
+                        // No image or second page of content
+                        if( $image == null || $num_pages > 0 ) {
+                            $content_height = $this->getStringHeight($this->left_col_width + $this->right_col_width, $new_content, true);
+                        } else {
+                            $content_height = $this->getStringHeight($this->right_col_width, $new_content, true);
+                        }
+                        error_log($content_height . '--' . $this->getPageHeight() . '::' . $this->GetY() . '::' . $title_height . '::' . $this->footer_height);
+                        if( $content_height > ($this->getPageHeight() - $this->GetY() - $title_height - $this->footer_height) ) {
+                            if( $num_pages == 0 ) {
+                                $section['content'] = $content;
+                            } else {
+                                $section['content_' . $num_pages] = $content;
+                            }
+                            $num_pages++;
+                            $content = '';
+                        }
+                        if( $content != '' || trim($line) != '' ) {
+                            $content .= $line . "\n";
+                        }
+                    }
+                    if( $content != '' ) {
+                        if( $num_pages == 0 ) {
+                            $section['content'] = $content;
+                        } else {
+                            $section['content_' . $num_pages] = $content;
+                        }
+                    }
+                }
+                elseif( $content_height > ($this->getPageHeight() - $this->GetY() - $title_height - $this->footer_height) ) {
                     $this->AddPage();
                     $newpage = 'yes';
                     $img_box_height = $this->getPageHeight() - $title_height - $this->footer_height;
                 }
             }
+            error_log($this->getPageHeight());
+            error_log($content_height);
+            error_log(print_r($section, true));
 
             //
             // Add the image title
@@ -149,6 +186,7 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
             //
             $start_y = $this->GetY();
             if( $section['content'] != '' ) {
+                $section['content'] = preg_replace("/\n/", "<br/>", $section['content']);
                 $this->SetFont('', '', '12');
                 if( $image == null ) {
                     $this->SetX($this->left_margin + $this->middle_margin);
@@ -176,6 +214,26 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
 
             if( $end_y > $this->GetY() ) {
                 $this->SetY($end_y);
+            }
+
+            //
+            // Check if more content
+            //
+            if( isset($num_pages) ) {
+                for($i = 1; $i <= $num_pages; $i++ ) {
+                    if( $section['content_' . $i] != '' ) {
+                        $this->AddPage();
+                        if( $section['subtitle'] != '' ) {
+                            $this->SetFont('', 'B', '16');
+                            $this->Cell($page_width, 11, $section['subtitle'] . ' (continued...)', 0, 1, 'L');
+                            $this->Ln(2);
+                        }
+                        $section['content_' . $i] = preg_replace("/\n/", "<br/>", $section['content_' . $i]);
+                        $this->SetFont('', '', '12');
+                        $this->SetX($this->left_margin + $this->middle_margin);
+                        $this->MultiCell($page_width, 8, $section['content_' . $i], 0, 'L', false, 1, '', '', true, 0, true, true, 0, 'T');
+                    }
+                }
             }
         }
     }
