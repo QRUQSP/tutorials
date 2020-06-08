@@ -133,6 +133,7 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
                     $lines = explode("\n", $section['content']);
                     $content = '';
                     $num_pages = 0;
+                    $remaining_height = $this->getPageHeight() - $this->GetY() - $title_height - $this->footer_height;
                     foreach($lines as $line) {
                         $new_content = $content . $line . "\n";
                         // No image or second page of content
@@ -141,10 +142,10 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
                         } else {
                             $content_height = $this->getStringHeight($this->right_col_width, $new_content, true);
                         }
-                        error_log($content_height . '--' . $this->getPageHeight() . '::' . $this->GetY() . '::' . $title_height . '::' . $this->footer_height);
-                        if( $content_height > ($this->getPageHeight() - $this->GetY() - $title_height - $this->footer_height) ) {
+                        if( $content_height > $remaining_height ) {
                             if( $num_pages == 0 ) {
                                 $section['content'] = $content;
+                                $remaining_height = $this->getPageHeight() - $this->header_height - $title_height - $this->footer_height;
                             } else {
                                 $section['content_' . $num_pages] = $content;
                             }
@@ -169,9 +170,6 @@ function qruqsp_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
                     $img_box_height = $this->getPageHeight() - $title_height - $this->footer_height;
                 }
             }
-            error_log($this->getPageHeight());
-            error_log($content_height);
-            error_log(print_r($section, true));
 
             //
             // Add the image title
