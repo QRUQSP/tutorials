@@ -110,16 +110,51 @@ function qruqsp_tutorials_templates_single($ciniki, $tnid, $categories, $args) {
             //
             // Calculate how much height is required for this step
             //
-            $title_content_height = 0;
+            $title_height = 0;
             if( $section['subtitle'] != '' ) {
                 $this->SetFont('', 'B', '16');
-                $title_content_height += $this->getStringHeight($page_width, $section['subtitle']);
+                $title_height += $this->getStringHeight($page_width, $section['subtitle']);
             }
+            $title_content_height = $title_height;
             if( $section['content'] != '' ) {
                 $section['content'] = trim($section['content']);
+                // Convert <a href=" to <a href=' (single quote matters to tcpdf)
+//                $section['content'] = preg_replace("/href=\"([^\"]+)\"/mi", "href='$1'", $section['content']);
                 $this->SetFont('', '', '12');
-                $title_content_height += $this->getStringHeight($page_width, $section['content']);
-                $section['content'] = preg_replace("/\n/", "<br/>", $section['content']);
+                $content_height = $this->getStringHeight($page_width, $section['content']);
+                $remaining_height = $this->getPageHeight() - $this->header_height - $title_content_height - $this->footer_height;
+                if( $content_height > $remaining_height ) {
+                    // Bigger than a single page, split content
+                    $lines = explode("\n", $section['content']);
+                    $content = '';
+                    $num_pages = 0;
+                    foreach($lines as $line) {
+                        $new_content = $content . $line . "\n";
+                        $content_height = $this->getStringHeight($page_width, $new_content);
+                        if( $content_height > $remaining_height ) {
+                            if( $num_pages == 0 ) {
+                                $section['content'] = $content;
+                            } else {
+                                $section['content_' . $num_pages] = $content;
+                            }
+                            $num_pages++;
+                            $content = '';
+                        }
+                        if( $content != '' || trim($line) != '' ) {
+                            $content .= $line . "\n";
+                        }
+                    }
+                    if( $content != '' ) {
+                        if( $num_pages == 0 ) {
+                            $section['content'] = $content;
+                        } else {
+                            $section['content_' . $num_pages] = $content;
+                        }
+                    }
+                    $title_content_height += $content_height;
+                } else {
+                    $title_content_height += $content_height;
+                }
             }
             $image = null;
             $img_box_height = 0;
@@ -178,7 +213,23 @@ function qruqsp_tutorials_templates_single($ciniki, $tnid, $categories, $args) {
             //
             if( $section['content'] != '' ) {
                 $this->SetFont('', '', '12');
-                $this->MultiCell($page_width, 8, $section['content'], 0, 'L', false, 1, '', '', true, 0, true, true, 0, 'T');
+                $section['content'] = preg_replace("/\n/", "<br/>", trim($section['content']));
+                $this->MultiCell($page_width, 8, trim($section['content']), 0, 'L', false, 1, '', '', true, 0, true, true, 0, 'T');
+            }
+            if( isset($num_pages) ) {
+                for($i = 1; $i <= $num_pages; $i++ ) {
+                    if( $section['content_' . $i] != '' ) {
+                        $this->AddPage();
+                        if( $section['subtitle'] != '' ) {
+                            $this->SetFont('', 'B', '16');
+                            $this->Cell($page_width, 8, $section['subtitle'] . ' (continued...)', 0, 1, 'L');
+                            $this->Ln(2);
+                        }
+                        $section['content_' . $i] = preg_replace("/\n/", "<br/>", trim($section['content_' . $i]));
+                        $this->SetFont('', '', '12');
+                        $this->MultiCell($page_width, 8, $section['content_' . $i], 0, 'L', false, 1, '', '', true, 0, true, true, 0, 'T');
+                    }
+                }
             }
 
             //
@@ -187,6 +238,7 @@ function qruqsp_tutorials_templates_single($ciniki, $tnid, $categories, $args) {
             if( $image != null ) {
                 if( $section['content'] != '' ) {
                     $this->Ln(5);
+                    $img_box_height -= 5;
                 }
                 $this->SetLineWidth(0.25);
                 $this->SetDrawColor(50);
